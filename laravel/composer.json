@@ -1,0 +1,30 @@
+{
+    "name": "licensify/client-sdk-laravel",
+    "description": "Optional Laravel bridge for licensify/client-sdk: service provider, facade, middleware and an artisan check command.",
+    "keywords": ["licensing", "license", "laravel", "sdk"],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "licensify/client-sdk": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Licensify\\Client\\Laravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Licensify\\Client\\Laravel\\LicenseServiceProvider"
+            ],
+            "aliases": {
+                "License": "Licensify\\Client\\Laravel\\Facades\\License"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,40 @@
+{
+    "name": "licensify/client-sdk",
+    "description": "Framework-agnostic PHP client SDK for the Licensify licensing API: signed license certificates, fail-closed offline grace and Ed25519 verification.",
+    "keywords": ["licensing", "license", "sdk", "ed25519", "offline-grace"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Licensify"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-sodium": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Licensify\\Client\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Licensify\\Client\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
