@@ -29,12 +29,18 @@ one is. Add to your `composer.json`:
 {
     "repositories": [
         {
-            "type": "vcs",
+            "type": "git",
             "url": "https://github.com/syedshaishad/licensify-client-sdk.git"
         }
     ]
 }
 ```
+
+A `git` entry rather than a `vcs` one on purpose: `vcs` asks the GitHub API
+for the repository's details first, and the API answers unauthenticated
+requests only sixty times an hour. Behind a shared address that runs out,
+and the failure is a confusing message about SSH credentials. A `git` entry
+clones over HTTPS and never touches the API.
 
 Then install a release:
 
