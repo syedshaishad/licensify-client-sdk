@@ -1,0 +1,47 @@
+name: Publish
+
+# Publishing happens on a release, not on every push, so a tag that is
+# published by accident cannot put a broken version on Packagist.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The version on Packagist comes from the tag, so the tag has to be
+          # fetched and not just the default branch.
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          # The SDK verifies Ed25519 certificates, so sodium is not optional.
+          extensions: sodium, json, openssl
+          coverage: none
+
+      - name: Install Composer
+        uses: ramsey/composer-install@v3
+
+      - name: Show the version being published
+        run: composer show --self --no-interaction 2>/dev/null | head -3
+
+      - name: Publish to Packagist
+        run: |
+          composer config --no-plugins allow-plugins.composer/packagist-publisher true
+          composer require --dev --no-interaction composer/packagist-publisher
+          composer publish --no-interaction --no-progress
+        env:
+          # A Packagist API token, stored as a repository secret. It needs the
+          # "publish" scope and nothing else.
+          COMPOSER_AUTH: '{"github.com":{"oauth2":"${{ secrets.PACKAGIST_API_TOKEN }}"}}'

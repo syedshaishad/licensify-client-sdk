@@ -18,10 +18,16 @@ Zero runtime dependencies. Requires PHP 8.3+, `ext-sodium`, `ext-json` and
 
 ## Install
 
-The package is published as its own repository so it can be installed without
-the platform itself. That repository is a mirror of the `sdk/` directory of the
-platform repository, published with `scripts/publish-sdk.sh`; the platform
-repository is the source of truth. Add the repository to your `composer.json`:
+This repository is the source of truth for the SDK. The Licensify platform
+consumes it from here, so the platform's own test suite runs against the same
+artefact you install.
+
+```bash
+composer require licensify/client-sdk
+```
+
+That resolves against Packagist. If the package has not been registered there
+yet, add the repository to your `composer.json` and install from it directly:
 
 ```json
 {
@@ -34,16 +40,14 @@ repository is the source of truth. Add the repository to your `composer.json`:
 }
 ```
 
-Then install it:
-
 ```bash
-composer require licensify/client-sdk
+composer require licensify/client-sdk:dev-main
 ```
 
 To pin a particular release rather than tracking the branch:
 
 ```bash
-composer require licensify/client-sdk:dev-main#<commit-sha>
+composer require licensify/client-sdk:1.0.0
 ```
 
 ### Without Composer
