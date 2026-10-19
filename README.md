@@ -18,9 +18,37 @@ Zero runtime dependencies. Requires PHP 8.3+, `ext-sodium`, `ext-json` and
 
 ## Install
 
+The package is published as its own repository so it can be installed without
+the platform itself. Add the repository to your `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/syedshaishad/licensify-client-sdk.git"
+        }
+    ]
+}
+```
+
+Then install it:
+
 ```bash
 composer require licensify/client-sdk
 ```
+
+To pin a particular release rather than tracking the branch:
+
+```bash
+composer require licensify/client-sdk:dev-main#<commit-sha>
+```
+
+### Without Composer
+
+The SDK has no runtime dependencies, so the `src/` directory can be copied into
+your project and autoloaded under the `Licensify\Client\` namespace if you
+would rather not add a repository entry.
 
 ## Configure
 
