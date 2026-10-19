@@ -6,6 +6,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to publish, e.g. v1.0.0
+        required: true
 
 jobs:
   publish:
@@ -20,7 +24,7 @@ jobs:
           # The version on Packagist comes from the tag, so the tag has to be
           # fetched and not just the default branch.
           fetch-depth: 0
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -33,15 +37,36 @@ jobs:
       - name: Install Composer
         uses: ramsey/composer-install@v3
 
-      - name: Show the version being published
-        run: composer show --self --no-interaction 2>/dev/null | head -3
+      - name: Check the token is there
+        env:
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
+        run: |
+          if [ -z "$PACKAGIST_API_TOKEN" ]; then
+              echo "::error::No Packagist API token. Add PACKAGIST_API_TOKEN to the"
+              echo "::error::repository secrets — it needs the 'publish' scope and nothing else."
+              exit 1
+          fi
+
+      - name: Derive the version from the tag
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION"
+
+          # Packagist and the tag have to agree. A mismatch means the release
+          # is tagged differently from the package, and publishing it would
+          # put a version on Packagist that no tag points at.
+          composer config version "$VERSION"
+          composer validate --no-check-publish --no-interaction
 
       - name: Publish to Packagist
         run: |
           composer config --no-plugins allow-plugins.composer/packagist-publisher true
           composer require --dev --no-interaction composer/packagist-publisher
-          composer publish --no-interaction --no-progress
+          composer publish --no-interaction --no-progress --no-scripts
         env:
-          # A Packagist API token, stored as a repository secret. It needs the
-          # "publish" scope and nothing else.
+          # A Packagist API token, stored as a repository secret.
           COMPOSER_AUTH: '{"github.com":{"oauth2":"${{ secrets.PACKAGIST_API_TOKEN }}"}}'
