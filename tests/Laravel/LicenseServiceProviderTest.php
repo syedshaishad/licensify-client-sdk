@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Licensify\Client\Tests\Laravel;
 
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Licensify\Client\Laravel\LaravelCacheStore;
 use Licensify\Client\Laravel\LicenseServiceProvider;
 use Licensify\Client\LicenseManager;
 use Licensify\Client\Support\Configuration;
@@ -95,6 +99,53 @@ final class LicenseServiceProviderTest extends TestCase
         $this->assertIsArray($config);
         $this->assertArrayHasKey('server_url', $config);
         $this->assertArrayHasKey('product_code', $config);
+    }
+
+    public function test_it_uses_the_applications_cache_when_there_is_one(): void
+    {
+        $app = new TestApplication;
+        $app->withConfig([
+            'license' => [
+                'server_url' => 'https://licensing.test',
+                'product_code' => 'MYCRM',
+                'license_key' => 'AAAA-BBBB-CCCC-DDDD-EEEE',
+            ],
+        ]);
+
+        // What Laravel registers: a repository under 'cache.store', with the
+        // contract as an alias of it.
+        $app->instance('cache.store', new Repository(new ArrayStore));
+        $app->alias('cache.store', CacheRepository::class);
+
+        (new LicenseServiceProvider($app))->register();
+
+        $this->assertInstanceOf(
+            LaravelCacheStore::class,
+            $app->make(LicenseManager::class)->cache(),
+            'the application cache was not used',
+        );
+    }
+
+    public function test_it_falls_back_to_its_own_cache_when_there_is_none(): void
+    {
+        $app = new TestApplication;
+        $app->withConfig([
+            'license' => [
+                'server_url' => 'https://licensing.test',
+                'product_code' => 'MYCRM',
+                'license_key' => 'AAAA-BBBB-CCCC-DDDD-EEEE',
+            ],
+        ]);
+
+        (new LicenseServiceProvider($app))->register();
+
+        // A container answers `bound()` with true for an alias whether or not
+        // the aliased service was registered, so a provider that asked for the
+        // contract would try to build a cache that is not there.
+        $this->assertNotInstanceOf(
+            LaravelCacheStore::class,
+            $app->make(LicenseManager::class)->cache(),
+        );
     }
 
     public function test_an_applications_own_values_win(): void
