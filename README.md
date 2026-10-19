@@ -19,7 +19,9 @@ Zero runtime dependencies. Requires PHP 8.3+, `ext-sodium`, `ext-json` and
 ## Install
 
 The package is published as its own repository so it can be installed without
-the platform itself. Add the repository to your `composer.json`:
+the platform itself. That repository is a mirror of the `sdk/` directory of the
+platform repository, published with `scripts/publish-sdk.sh`; the platform
+repository is the source of truth. Add the repository to your `composer.json`:
 
 ```json
 {
