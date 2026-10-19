@@ -22,8 +22,11 @@ final class LicenseServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../../config/license.php', 'license');
 
+        // The configuration comes out of the container rather than the global
+        // config() helper, which lives in the framework this package does not
+        // require. The helper is only sugar over the same binding.
         $this->app->singleton(Configuration::class, fn (): Configuration => Configuration::fromArray(
-            (array) config('license', []),
+            (array) $this->app->make('config')->get('license', []),
         ));
 
         $this->app->singleton(LicenseManager::class, function ($app): LicenseManager {

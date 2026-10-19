@@ -144,12 +144,25 @@ Each carries the API's canonical `errorCode()` so you can branch on
 
 ## The Laravel bridge
 
-Optional and not autoloaded by this package. Install
-`licensify/client-sdk-laravel` for a service provider, a `License` facade,
-`EnsureLicenseIsValid` middleware and `php artisan license:check`.
+Part of this package, and optional. It adds a service provider, a `License`
+facade, an `EnsureLicenseIsValid` middleware and `php artisan license:check`.
+Illuminate is a suggestion rather than a requirement, so the core stays
+framework-agnostic and installs with nothing else.
+
+Laravel discovers the provider and the facade automatically. To use them:
 
 ```php
+use Licensify\Client\Laravel\Http\Middleware\EnsureLicenseIsValid;
+
 Route::get('/reports', ReportController::class)->middleware(EnsureLicenseIsValid::class);
+```
+
+The middleware refuses a request it cannot prove — a 403 with a machine-readable
+`error.code` — rather than redirecting to a login page and passing.
+
+```bash
+php artisan license:check          # exits non-zero when the licence cannot be proven
+php artisan license:check --json   # the same, machine-readable
 ```
 
 In a plain PHP app, or in tests, inject the manager directly — every collaborator

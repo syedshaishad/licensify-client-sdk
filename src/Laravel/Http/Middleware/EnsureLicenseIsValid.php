@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Licensify\Client\Laravel\Middleware;
+namespace Licensify\Client\Laravel\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Licensify\Client\Exception\GraceExpiredException;
 use Licensify\Client\Exception\LicenseException;
@@ -43,7 +44,7 @@ final readonly class EnsureLicenseIsValid
     {
         $expired = $code === 'LICENSE_GRACE_EXPIRED' || $code === 'NO_VALID_CERTIFICATE';
 
-        return response()->json([
+        return new JsonResponse([
             'success' => false,
             'error' => [
                 'code' => $code,

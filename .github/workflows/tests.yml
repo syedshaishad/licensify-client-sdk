@@ -30,5 +30,8 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist
 
+      - name: Check the code style
+        run: vendor/bin/pint --test
+
       - name: Run the test suite
         run: vendor/bin/phpunit

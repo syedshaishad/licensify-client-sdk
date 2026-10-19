@@ -23,7 +23,15 @@
         "ext-sodium": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.5|^12.0"
+        "illuminate/cache": "^11.0|^12.0|^13.0",
+        "illuminate/config": "^11.0|^12.0|^13.0",
+        "illuminate/console": "^11.0|^12.0|^13.0",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "laravel/pint": "^1.27",
+        "phpunit/phpunit": "^11.5|^12.0",
+        "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
         "psr-4": {
@@ -49,5 +57,19 @@
         "issues": "https://github.com/syedshaishad/licensify-client-sdk/issues",
         "source": "https://github.com/syedshaishad/licensify-client-sdk",
         "docs": "https://license.shaishad.com/docs"
+    },
+    "suggest": {
+        "illuminate/support": "Required for the Laravel bridge: service provider, facade, middleware and artisan command",
+        "illuminate/contracts": "Required for the Laravel bridge"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Licensify\\Client\\Laravel\\LicenseServiceProvider"
+            ],
+            "aliases": {
+                "License": "Licensify\\Client\\Laravel\\Facades\\License"
+            }
+        }
     }
 }
