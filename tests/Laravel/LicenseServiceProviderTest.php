@@ -137,14 +137,20 @@ final class LicenseServiceProviderTest extends TestCase
             ],
         ]);
 
+        // The situation Laravel itself creates: the contract is an alias of
+        // 'cache.store', and 'cache.store' was never registered because the
+        // cache service provider is not there. A container answers `bound()`
+        // with true for an alias whether or not the aliased service was
+        // registered, so a provider that asked first would try to build a
+        // cache that does not exist.
+        $app->alias('cache.store', CacheRepository::class);
+
         (new LicenseServiceProvider($app))->register();
 
-        // A container answers `bound()` with true for an alias whether or not
-        // the aliased service was registered, so a provider that asked for the
-        // contract would try to build a cache that is not there.
         $this->assertNotInstanceOf(
             LaravelCacheStore::class,
             $app->make(LicenseManager::class)->cache(),
+            'the SDK tried to build a cache that is not there',
         );
     }
 

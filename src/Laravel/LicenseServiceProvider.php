@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Licensify\Client\Laravel;
 
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\ServiceProvider;
 use Licensify\Client\LicenseManager;
 use Licensify\Client\Support\Configuration;
@@ -34,13 +35,18 @@ final class LicenseServiceProvider extends ServiceProvider
             // The Laravel cache is preferred so a licence survives a deploy that
             // replaces local files. `config/license.cache_path` overrides it.
             //
-            // The concrete binding is what gets checked, not the contract.
-            // Laravel registers the cache repository as an alias of
-            // 'cache.store', and a container answers `bound()` with true for
-            // an alias whether or not the aliased service was ever registered
-            // — so asking for the contract says yes and then fails to build.
-            if ($app->bound('cache.store')) {
-                $manager->setCache(new LaravelCacheStore($app->make('cache.store')));
+            // The cache is asked for and a failure is not fatal. Laravel
+            // registers the cache repository as an alias of 'cache.store', and
+            // a container answers `bound()` with true for an alias whether or
+            // not the aliased service was ever registered — so there is no
+            // check that can tell the truth here. The SDK ships a file cache
+            // of its own, and a licence that could not be stored in the
+            // application's cache is better than an application that cannot
+            // boot.
+            try {
+                $manager->setCache(new LaravelCacheStore($app->make(CacheRepository::class)));
+            } catch (\Throwable) {
+                // No cache in this application. The SDK's own is used instead.
             }
 
             return $manager;
