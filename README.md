@@ -22,12 +22,8 @@ This repository is the source of truth for the SDK. The Licensify platform
 consumes it from here, so the platform's own test suite runs against the same
 artefact you install.
 
-```bash
-composer require licensify/client-sdk
-```
-
-That resolves against Packagist. If the package has not been registered there
-yet, add the repository to your `composer.json` and install from it directly:
+Composer finds a package by name through a repository, so tell it where this
+one is. Add to your `composer.json`:
 
 ```json
 {
@@ -40,15 +36,21 @@ yet, add the repository to your `composer.json` and install from it directly:
 }
 ```
 
-```bash
-composer require licensify/client-sdk:dev-main
-```
-
-To pin a particular release rather than tracking the branch:
+Then install a release:
 
 ```bash
 composer require licensify/client-sdk:1.0.0
 ```
+
+Or track the branch instead, which is what you want while you are working
+against unreleased changes:
+
+```bash
+composer require licensify/client-sdk:dev-main
+```
+
+The package has no runtime dependencies, so `composer require` pulls in
+nothing else.
 
 ### Without Composer
 
