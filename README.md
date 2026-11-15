@@ -45,7 +45,7 @@ clones over HTTPS and never touches the API.
 Then install a release:
 
 ```bash
-composer require licensify/client-sdk:1.0.0
+composer require licensify/client-sdk:1.1.0
 ```
 
 Or track the branch instead, which is what you want while you are working
