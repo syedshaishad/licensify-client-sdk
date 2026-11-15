@@ -332,6 +332,35 @@ class LicenseManager
     }
 
     /**
+     * Requests a one-time URL for the newest published release.
+     *
+     * Returns null when no update is available or when the running version is
+     * the current one. The URL is scoped to this licence, this installation
+     * and a handful of minutes, so it can be handed to a download step
+     * without being a reusable credential.
+     *
+     * @throws LicenseException
+     */
+    public function updatePackage(): ?UpdatePackage
+    {
+        $info = $this->updateAvailable();
+
+        if ($info === null || ! is_string($info->latestVersion) || $info->latestVersion === '') {
+            return null;
+        }
+
+        $data = $this->client()->requestDownload([
+            'product_code' => $this->config->productCode,
+            'license_key' => $this->config->licenseKey,
+            'version' => $info->latestVersion,
+            'domain' => $this->currentDomain(),
+            'installation_id' => $this->installationId(),
+        ]);
+
+        return UpdatePackage::fromArray($data);
+    }
+
+    /**
      * The single question product software should ask, and the one that must
      * never throw: an unreachable server or an untrusted cache is a `false`,
      * not an exception (contract §10, §53).

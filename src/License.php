@@ -122,6 +122,17 @@ final class License
     }
 
     /**
+     * One-time download URL for the newest published release, or null when an
+     * update is not available.
+     *
+     * @throws LicenseException
+     */
+    public static function updatePackage(): ?UpdatePackage
+    {
+        return self::manager()->updatePackage();
+    }
+
+    /**
      * May this installation run? Never throws — an unreachable server or an
      * untrusted certificate is a `false`, never a `true` (contract §53).
      */

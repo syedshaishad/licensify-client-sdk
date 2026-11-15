@@ -129,10 +129,32 @@ License::activate();              // idempotent; a repeat call is a success
 License::deactivate('moving host');
 License::status();                // licence-level state, no certificate
 License::updateAvailable();       // ?UpdateInfo, semver-correct
+License::updatePackage();         // ?UpdatePackage, one-time download grant
 License::certificate();           // the cached token, for diagnostics
 License::offlineDaysRemaining();
 License::expireCache();           // for support — does NOT grant access
 License::trustKey($kid, $publicKeyBase64);
+```
+
+You can tell customers exactly what changed without moving away from the security model:
+
+```php
+$update = License::updatePackage();
+
+if ($update !== null) {
+    echo $update->version;       // '2.5.0'
+    echo $update->expiresAt;     // one-time URL expiry
+
+    // Fetch the bytes...
+    $path = sys_get_temp_dir().'/my-software-update.zip';
+    file_put_contents($path, file_get_contents($update->url));
+
+    // Verify before using them.
+    if (! $update->verify($path)) {
+        unlink($path);
+        abort(500, 'Package checksum did not match');
+    }
+}
 ```
 
 ### Exceptions

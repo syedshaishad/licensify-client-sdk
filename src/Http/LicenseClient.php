@@ -31,6 +31,8 @@ final class LicenseClient
 
     public const ENDPOINT_UPDATES = '/api/v1/updates/check';
 
+    public const ENDPOINT_DOWNLOADS = '/api/v1/downloads/request';
+
     public const ENDPOINT_PUBLIC_KEY = '/api/v1/products/%s/public-key';
 
     public const ENDPOINT_PING = '/api/v1/ping';
@@ -115,6 +117,19 @@ final class LicenseClient
     public function checkUpdates(array $payload): array
     {
         return $this->post(self::ENDPOINT_UPDATES, $payload);
+    }
+
+    /**
+     * Asks for a one-time URL for the given version (contract §4).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     *
+     * @throws LicenseException
+     */
+    public function requestDownload(array $payload): array
+    {
+        return $this->post(self::ENDPOINT_DOWNLOADS, $payload);
     }
 
     /**
@@ -221,14 +236,19 @@ final class LicenseClient
             return $decoded;
         }
 
-        // A §1.1 envelope always carries `data`. Absent entirely means the server sent
-        // something else, and guessing that an empty result is acceptable would
-        // turn a malformed response into a silent no-op.
-        if (! array_key_exists('data', $decoded) || ! is_array($decoded['data']) || array_is_list($decoded['data'])) {
-            throw NetworkException::malformedResponse($url, 'the envelope has no usable "data" object');
+        // An API response either carries a `data` envelope or was served raw
+        // (the documented flat format). Accept both so neither the published
+        // contract nor current deployments need every client to redeploy at
+        // once.
+        if (array_key_exists('data', $decoded)) {
+            if (! is_array($decoded['data']) || array_is_list($decoded['data'])) {
+                throw NetworkException::malformedResponse($url, 'the envelope has no usable "data" object');
+            }
+
+            return $decoded['data'];
         }
 
-        return $decoded['data'];
+        return $decoded;
     }
 
     /**

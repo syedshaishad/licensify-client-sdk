@@ -277,14 +277,13 @@ final class LicenseClientTest extends TestCase
         $this->client->activate([]);
     }
 
-    public function test_an_envelope_without_data_is_rejected(): void
+    public function test_a_flat_response_without_data_is_accepted(): void
     {
-        $this->respond(200, ['success' => true]);
+        $this->respond(200, ['success' => true, 'activated' => true]);
 
-        $this->expectException(NetworkException::class);
-        $this->expectExceptionMessageMatches('/"data"/');
+        $data = $this->client->activate([]);
 
-        $this->client->activate([]);
+        $this->assertTrue($data['activated']);
     }
 
     public function test_no_credentials_means_no_authentication_headers(): void

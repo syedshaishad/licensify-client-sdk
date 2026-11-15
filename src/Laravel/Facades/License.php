@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Facade;
 use Licensify\Client\LicenseManager;
 use Licensify\Client\LicenseStatus;
 use Licensify\Client\UpdateInfo;
+use Licensify\Client\UpdatePackage;
 
 /**
  * Laravel facade over the bound {@see LicenseManager}.
@@ -20,6 +21,7 @@ use Licensify\Client\UpdateInfo;
  * @method static bool deactivate(?string $reason = null)
  * @method static LicenseStatus status()
  * @method static UpdateInfo|null updateAvailable()
+ * @method static UpdatePackage|null updatePackage()
  * @method static bool valid()
  * @method static string|null certificate()
  * @method static \DateTimeImmutable|null graceExpiresAt()
